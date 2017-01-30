@@ -1,0 +1,25 @@
+.main-container {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+}
+
+#edit-text {
+	margin: 10px;
+}
+
+#terrain1 {
+	width: 32px;
+	height: 32px;
+	background: url(tiles.png) -256 -512;
+	margin: 20px;
+	border-width: 3px;
+}
+
+#terrain2 {
+	width: 32px;
+	height: 32px;
+	margin: 20px;
+	background: url(tiles.png) -864 -608;
+	border-width: 3px;
+}
