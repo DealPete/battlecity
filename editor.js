@@ -8,6 +8,7 @@ var ctx = canvas.getContext('2d');
 
 imageLoaded = false;
 mapLoaded = false;
+mouseDown = false;
 
 var sprites = new Image();
 sprites.src = "tiles.png"
@@ -33,6 +34,8 @@ function loadMap() {
 		if (this.readyState == 4 && this.status == 200) {
 			level = JSON.parse(this.responseText);
 			levelNameSpan.innerHTML = level.name;
+			if (level.data.length != MAP_HEIGHT*MAP_WIDTH)
+				throw new Error("Map has incorrect dimensions.");
 			for (i of level.data)
 				map.push(i);
 			mapLoaded = true;
@@ -66,14 +69,39 @@ function drawGrid() {
 
 function drawMap() {
 	function drawTile(name, x, y) {
-		ctx.drawImage(sprites, tiles[name].x, tiles[name].y,
-			SQUARE_WIDTH, SQUARE_HEIGHT, x*SQUARE_WIDTH, y*SQUARE_HEIGHT,
-			SQUARE_WIDTH, SQUARE_HEIGHT);
+		try {
+			ctx.drawImage(sprites, tiles[name].x, tiles[name].y,
+				SQUARE_WIDTH, SQUARE_HEIGHT, x*SQUARE_WIDTH, y*SQUARE_HEIGHT,
+				SQUARE_WIDTH, SQUARE_HEIGHT);
+		}
+		catch(err) {
+			throw err;
+		}
 	}
 
 	for (i = 0; i < map.length; i++) {
-		drawTile(map[i], i % MAP_WIDTH, Math.floor(i / MAP_WIDTH))
+		try {
+			drawTile(map[i], i % MAP_WIDTH, Math.floor(i / MAP_WIDTH))
+		} catch(err) {
+			console.log(i, map[i]);
+		}
 	}
+}
+
+canvas.onmousedown = function(e) {
+	if (e.button == 0) {
+		mouseDown = true;
+		map[Math.floor(e.offsetX/SQUARE_WIDTH) % MAP_WIDTH
+			+Math.floor(e.offsetY/SQUARE_HEIGHT) * MAP_WIDTH] = 1;
+		drawMap();
+	}
+}
+
+canvas.onmouseup = function() {
+	mouseDown = false;
+}
+
+canvas.onmousemove = function(e) {
 }
 
 loadMap();
