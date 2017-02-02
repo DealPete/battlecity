@@ -1,3 +1,8 @@
+const MAP_HEIGHT = 20
+const MAP_WIDTH = 30
+const SQUARE_HEIGHT = 32
+const SQUARE_WIDTH = 32
+
 var canvas = document.getElementById('maze');
 var ctx = canvas.getContext('2d');
 
@@ -6,21 +11,42 @@ var gain = audioCtx.createGain();
 gain.gain.value = 0.1;
 gain.connect(audioCtx.destination);
 
-state = { state: "loading" };
+state = {
+	state: "loading",
+	level: null
+};
 
 var man = new Image();
 man.src = "man.png";
 
 let imagesLoaded = 0;
-
+let mapLoaded = 0;
 
 [man].map( image => {
 	image.onload = () => {
 		imagesLoaded += 1;
-		if (imagesLoaded == 1)
+		if (imagesLoaded == 1 && mapLoaded)
 			startGame();
 	}
 });
+
+function loadMap() {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			state.level = JSON.parse(this.responseText);
+			if (state.level.data.length != MAP_HEIGHT*MAP_WIDTH)
+				throw new Error("Map has incorrect dimensions.");
+			mapLoaded = true;
+			if (imagesLoaded == 1)
+				startGame();
+		}
+	}
+	xmlhttp.open("GET", "loadlevel.php");
+	xmlhttp.send();
+}
+
+loadMap();
 
 function startGame() {
 	state = {
