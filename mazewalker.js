@@ -72,9 +72,12 @@ function drawScreen() {
 }
 
 function updateState() {
-	state.player.x += state.player.vx;
-	state.player.y += state.player.vy;
-	collisionDetection();
+	let newX = state.player.x + state.player.vx;
+	let newY = state.player.y + state.player.vy;
+	if (!collisionDetection()) {
+		state.player.x = newX;
+		state.player.y = newY;
+	}
 }
 
 function drawWall(topX, topY, xLength, yLength) {
@@ -84,15 +87,16 @@ function drawWall(topX, topY, xLength, yLength) {
     ctx.fill();
     ctx.closePath();
 }
+
 function collisionDetection() {
 	if (state.player.y < 10)
-		state.player.y = 10;
+		return true;
 	if (state.player.y > 360)
-		state.player.y = 360;
+		return true;
 	if (state.player.x < 10)
-		state.player.x = 10;
+		return true;
 	if (state.player.x > 600)
-		state.player.x  = 600;
+		return true;
 
 	//wall detection
 	if ((state.player.x <= state.walls.wall1.topX + state.walls.wall1.xLength && state.player.x >= state.walls.wall1.topX) && (state.player.y <= state.walls.wall1.topY + state.walls.wall1.yLength && state.player.y >= state.walls.wall1.topY)) {
