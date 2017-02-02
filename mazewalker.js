@@ -74,7 +74,7 @@ function drawScreen() {
 function updateState() {
 	let newX = state.player.x + state.player.vx;
 	let newY = state.player.y + state.player.vy;
-	if (!collisionDetection()) {
+	if (!collisionDetection(newX, newY)) {
 		state.player.x = newX;
 		state.player.y = newY;
 	}
@@ -88,14 +88,14 @@ function drawWall(topX, topY, xLength, yLength) {
     ctx.closePath();
 }
 
-function collisionDetection() {
-	if (state.player.y < 10)
+function collisionDetection(newX, newY) {
+	if (newY < 10)
 		return true;
-	if (state.player.y > 360)
+	if (newY > 360)
 		return true;
-	if (state.player.x < 10)
+	if (newX < 10)
 		return true;
-	if (state.player.x > 600)
+	if (newX > 600)
 		return true;
 
 	//wall detection
