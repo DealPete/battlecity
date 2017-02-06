@@ -1,6 +1,18 @@
 const TILE_WIDTH = 32;
 
 var data = [];
+var man = new Image();
+man.src = "man.png";
+
+var tile = new Image();
+tile.src = 'tiles.png';
+
+var tiles = [
+	{ name: "none", x: 0, y: 0 },
+	{ name: "wall", x: 8*32, y: 16*32 },
+	{ name: "water", x: 27*32, y: 19*32 }
+]
+
 
 function loadJSON(callback) {
 
@@ -25,14 +37,18 @@ function init() {
 		console.log('game started')
 
 		console.log(walls)
+		console.log(man)
+		// [man].map( image => {
+		// 	image.onload = () => {
+		// 		imagesLoaded += 1;
+		// 		if (imagesLoaded == 1)
+		// 			startGame(walls);
+		// 	}
+		// });
 
-		[man].map( image => {
-			image.onload = () => {
-				imagesLoaded += 1;
-				if (imagesLoaded == 1)
-					startGame(walls);
-			}
-		});
+		startGame(walls)
+
+
 
 
  });
@@ -64,28 +80,7 @@ gain.gain.value = 0.1;
 gain.connect(audioCtx.destination);
 
 state = { state: "loading" };
-
-var man = new Image();
-man.src = "man.png";
-
-var tile = new Image();
-tile.src = 'tiles.png';
-
-var tiles = [
-	{ name: "none", x: 0, y: 0 },
-	{ name: "wall", x: 8*32, y: 16*32 },
-	{ name: "water", x: 27*32, y: 19*32 }
-]
-
 let imagesLoaded = 0;
-
-[man].map( image => {
-	image.onload = () => {
-		imagesLoaded += 1;
-		if (imagesLoaded == 1)
-			startGame(data);
-	}
-});
 
 function startGame(data) {
 	state = {
