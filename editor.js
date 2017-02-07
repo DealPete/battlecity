@@ -16,18 +16,15 @@ state = {
 }
 
 var sprites = new Image();
-sprites.src = "tiles.png"
 
-sprites.onload = function() {
-	state.imageLoaded = true;
-	if (state.mapLoaded) drawMap();
-}
 
-var tiles = [
-	{ name: "none", x: 0, y: 0 },
-	{ name: "wall", x: 8*32, y: 16*32 },
-	{ name: "water", x: 27*32, y: 19*32 }
-]
+//"tiles": [
+//	{ "name": "none", "x": 0, "y": 0 },
+//	{ "name": "wall", "x": 256, "y": 512 },
+//	{ "name": "water", "x": 864, "y": 608 }
+//],
+//"sprites":"tiles.png",
+
 
 var level = {};
 var map = [];
@@ -51,22 +48,19 @@ button2.onclick = function() {
 }
 
 function loadMap() {
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			level = JSON.parse(this.responseText);
-			levelNameSpan.innerHTML = level.name;
-			if (level.data.length != MAP_HEIGHT*MAP_WIDTH)
-				throw new Error("Map has incorrect dimensions.");
-			for (i of level.data)
-				map.push(i);
-			state.mapLoaded = true;
-			if (state.imageLoaded)
-				drawMap();
+	get("loadlevel.php", function(res) {
+		level = JSON.parse(res);
+		levelNameSpan.innerHTML = level.name;
+		if (level.data.length != MAP_HEIGHT*MAP_WIDTH)
+			throw new Error("Map has incorrect dimensions.");
+		for (i of level.data)
+			map.push(i);
+		sprites.src = level.sprites;
+
+		sprites.onload = function() {
+			drawMap();
 		}
-	}
-	xmlhttp.open("GET", "loadlevel.php");
-	xmlhttp.send();
+	});
 }
 
 function drawGrid() {
@@ -94,7 +88,7 @@ function drawMap() {
 	drawGrid();
 	function drawTile(name, x, y) {
 		try {
-			ctx.drawImage(sprites, tiles[name].x, tiles[name].y,
+			ctx.drawImage(sprites, level.tiles[name].x, level.tiles[name].y,
 				SQUARE_WIDTH, SQUARE_HEIGHT, x*SQUARE_WIDTH, y*SQUARE_HEIGHT,
 				SQUARE_WIDTH, SQUARE_HEIGHT);
 		}
@@ -148,15 +142,9 @@ canvas.oncontextmenu = function(e) {
 
 saveButton.onclick = function() {
 	level.data = map.join("");
-	var xmlhttp = new XMLHttpRequest("POST");
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			//console.log(this.responseText);
-		}	
-	}
-	xmlhttp.open("POST", "savelevel.php");
-	xmlhttp.setRequestHeader("Content-Type", "application/json");
-	xmlhttp.send(JSON.stringify(level));
+	post("savelevel.php", JSON.stringify(level), function(res) {
+		console.log(res)
+	});
 }
 	
 loadMap();
