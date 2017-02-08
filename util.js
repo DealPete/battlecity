@@ -2,7 +2,8 @@ function post(requestPage, data, callback) {
 	var xmlhttp = new XMLHttpRequest("POST");
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			callback(this.responseText);
+			if (callback)
+				callback(this.responseText);
 		}
 	}
 	xmlhttp.open("POST", requestPage);
@@ -14,7 +15,8 @@ function get(requestPage, callback) {
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			callback(this.responseText);
+			if (callback)
+				callback(this.responseText);
 		}
 	}
 	xmlhttp.open("GET", requestPage);

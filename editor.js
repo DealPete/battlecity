@@ -1,14 +1,10 @@
 MAP_HEIGHT = 20
 MAP_WIDTH = 30
-SQUARE_HEIGHT = 32
-SQUARE_WIDTH = 32
 
 var canvas = document.getElementById('editor');
 var ctx = canvas.getContext('2d');
 
 state = {
-	imageLoaded: false,
-	mapLoaded: false,
 	mouseDown: false,
 	button: null,
 	cursorLocation: null,
@@ -17,34 +13,39 @@ state = {
 
 var sprites = new Image();
 
-
-//"tiles": [
-//	{ "name": "none", "x": 0, "y": 0 },
-//	{ "name": "wall", "x": 256, "y": 512 },
-//	{ "name": "water", "x": 864, "y": 608 }
-//],
-//"sprites":"tiles.png",
-
-
-var level = {};
 var map = [];
+var buttons = [];
 var levelNameSpan = document.getElementById('levelName');
 var saveButton = document.getElementById('saveButton');
+var clearMap = document.getElementById('clearMap');
 
-var button1 = document.getElementById('terrain1');
-var button2 = document.getElementById('terrain2');
-button1.style.borderColor = "black";
-
-button1.onclick = function() {
+function createButtons() {
+	for (tile of tileset.tiles) {
+		if (tile.name != "none") {
+			var node = document.createElement("button");
+			node.className = "tile-button";
+			node.style.width = tileset.tileWidth;
+			node.style.height = tileset.tileHeight;
+			node.style.background = "url(" + tileset.sprites +") -"
+				+ tile.x * tileset.tileWidth + " -" + tile.y * tileset.tileHeight;
+			node.onclick = function() {
+				for (var i = 0; i < buttons.length; i++) {
+					if (buttons[i] == this) {
+						state.terrain = i + 1;
+						buttons[i].style.outlineStyle = "solid";
+					}
+					else {
+						buttons[i].style.outlineStyle = "none";
+					}
+				}
+			}
+			buttons.push(node);
+			document.getElementById("tile-buttons").appendChild(node);
+		}
+	}
 	state.terrain = 1;
-	button1.style.borderColor = "black";
-	button2.style.borderColor = "white";
-}
-
-button2.onclick = function() {
-	state.terrain = 2;
-	button2.style.borderColor = "black";
-	button1.style.borderColor = "white";
+	buttons[0].style.outlineStyle = "solid";
+	drawMap();
 }
 
 function loadMap() {
@@ -55,19 +56,21 @@ function loadMap() {
 			throw new Error("Map has incorrect dimensions.");
 		for (i of level.data)
 			map.push(i);
-		sprites.src = level.sprites;
 
-		sprites.onload = function() {
-			drawMap();
-		}
+		get(level.tileset, res => {
+			console.log(res);
+			tileset = JSON.parse(res);
+			sprites.src = tileset.sprites;
+			sprites.onload = createButtons;
+		});
 	});
 }
 
 function drawGrid() {
 	for (i = 1; i < MAP_WIDTH; i++) {
 		ctx.beginPath();
-		ctx.moveTo(i * SQUARE_WIDTH, 0);
-		ctx.lineTo(i * SQUARE_WIDTH, SQUARE_HEIGHT*MAP_HEIGHT);
+		ctx.moveTo(i * tileset.tileWidth, 0);
+		ctx.lineTo(i * tileset.tileWidth, tileset.tileHeight*MAP_HEIGHT);
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "#FFFFFF";
 		ctx.stroke();
@@ -75,8 +78,8 @@ function drawGrid() {
 
 	for (i = 1; i < MAP_HEIGHT; i++) {
 		ctx.beginPath();
-		ctx.moveTo(0, i * SQUARE_HEIGHT);
-		ctx.lineTo(SQUARE_WIDTH*MAP_WIDTH, i * SQUARE_HEIGHT);
+		ctx.moveTo(0, i * tileset.tileHeight);
+		ctx.lineTo(tileset.tileWidth*MAP_WIDTH, i * tileset.tileHeight);
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "#FFFFFF";
 		ctx.stroke();
@@ -84,31 +87,25 @@ function drawGrid() {
 }
 
 function drawMap() {
-	ctx.clearRect(0, 0, MAP_WIDTH*SQUARE_WIDTH, MAP_HEIGHT*SQUARE_HEIGHT);
+	ctx.clearRect(0, 0, MAP_WIDTH*tileset.tileWidth, MAP_HEIGHT*tileset.tileHeight);
 	drawGrid();
 	function drawTile(name, x, y) {
-		try {
-			ctx.drawImage(sprites, level.tiles[name].x, level.tiles[name].y,
-				SQUARE_WIDTH, SQUARE_HEIGHT, x*SQUARE_WIDTH, y*SQUARE_HEIGHT,
-				SQUARE_WIDTH, SQUARE_HEIGHT);
-		}
-		catch(err) {
-			throw err;
-		}
+		ctx.drawImage(sprites, tileset.tiles[name].x*tileset.tileWidth,
+			tileset.tiles[name].y*tileset.tileHeight, tileset.tileWidth,
+			tileset.tileHeight, x*tileset.tileWidth, y*tileset.tileHeight,
+			tileset.tileWidth, tileset.tileHeight);
 	}
 
 	for (i = 0; i < map.length; i++) {
-		try {
+		if (map[i] != 0) {
 			drawTile(map[i], i % MAP_WIDTH, Math.floor(i / MAP_WIDTH))
-		} catch(err) {
-			console.log(i, map[i]);
 		}
 	}
 }
 
 canvas.onmousedown = function(e) {
-	state.cursorLocation = Math.floor(e.offsetX/SQUARE_WIDTH) % MAP_WIDTH
-			+ Math.floor(e.offsetY/SQUARE_HEIGHT) * MAP_WIDTH;
+	state.cursorLocation = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
+			+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
 	state.mouseDown = true;
 	state.button = e.button;
 	if (state.button == 0) {
@@ -126,8 +123,8 @@ canvas.onmouseup = function() {
 
 canvas.onmousemove = function(e) {
 	if (state.mouseDown) {
-		var loc = Math.floor(e.offsetX/SQUARE_WIDTH) % MAP_WIDTH
-				+ Math.floor(e.offsetY/SQUARE_HEIGHT) * MAP_WIDTH;
+		var loc = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
+				+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
 		if (loc != state.cursorLocation) {
 			map[loc] = (state.button == 0) ? state.terrain : 0;
 			state.cursorLocation = loc;
@@ -147,4 +144,9 @@ saveButton.onclick = function() {
 	});
 }
 	
+clearMap.onclick = function() {
+	map = map.map( tile => 0 );
+	drawMap();
+}
+
 loadMap();

@@ -1,0 +1,16 @@
+{
+	"tileWidth":32,
+	"tileHeight":32,
+	"tiles": [
+		{"name":"none","x":0,"y":0},
+		{"name":"tank1","x":0,"y":0},
+		{"name":"tank2","x":0,"y":8},
+		{"name":"flag","x":19,"y":2},
+		{"name":"brick","x":16,"y":0},
+		{"name":"wall","x":16,"y":1},
+		{"name":"water","x":16,"y":2},
+		{"name":"forest","x":17,"y":2},
+		{"name":"ice","x":18,"y":2}
+	],
+	"sprites":"battlecity.png"
+}
