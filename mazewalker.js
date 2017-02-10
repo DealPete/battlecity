@@ -6,11 +6,17 @@ man.src = "man.png";
 
 var tile = new Image();
 
-var tiles = [
-	// { name: "none", x: 0, y: 0 },
-	// { name: "wall", x: 8*32, y: 16*32 },
-	// { name: "water", x: 27*32, y: 19*32 }
-]
+var tiles = [];
+
+var canvas = document.getElementById('maze');
+var ctx = canvas.getContext('2d');
+
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var gain = audioCtx.createGain();
+
+
+var state = { state: "loading" };
+let imagesLoaded = 0;
 
 function init() {
  get("level.json", function(response) {
@@ -26,53 +32,13 @@ function init() {
 			console.log(tiles)
 	 		console.log(walls)
 	 		console.log(man)
-			// console.log('game started')
-	 		// [man].map( image => {
-	 		// 	image.onload = () => {
-	 		// 		imagesLoaded += 1;
-	 		// 		if (imagesLoaded == 1)
-	 		// 			startGame(walls);
-	 		// 	}
-	 		// });
-
-	 		//startGame(walls)
+			console.log('game started')
 
 			startGame(walls)
 
-		})
-  // Parse JSON string into object
-
-
-
+		});
  });
 }
-
-init();
-// var walls = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 					   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 					   [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-// 					   [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 						 [1,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2,0,0,0,1],
-// 						 [1,0,0,0,0,1,1,0,0,0,0,0,0,0,2,2,0,0,0,1],
-// 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-// 					   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-
-
-var canvas = document.getElementById('maze');
-var ctx = canvas.getContext('2d');
-
-var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-var gain = audioCtx.createGain();
-gain.gain.value = 0.1;
-gain.connect(audioCtx.destination);
-
-state = { state: "loading" };
-let imagesLoaded = 0;
 
 function startGame(data) {
 	state = {
@@ -153,6 +119,11 @@ function collisionDetection(walls, newX, newY) {
 	// 	return true;
 	// }
 }
+
+init();
+
+gain.gain.value = 0.1;
+gain.connect(audioCtx.destination);
 
 
 window.onkeyup = (event) => {
