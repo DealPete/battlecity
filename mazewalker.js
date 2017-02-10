@@ -5,49 +5,42 @@ var man = new Image();
 man.src = "man.png";
 
 var tile = new Image();
-tile.src = 'tiles.png';
 
 var tiles = [
-	{ name: "none", x: 0, y: 0 },
-	{ name: "wall", x: 8*32, y: 16*32 },
-	{ name: "water", x: 27*32, y: 19*32 }
+	// { name: "none", x: 0, y: 0 },
+	// { name: "wall", x: 8*32, y: 16*32 },
+	// { name: "water", x: 27*32, y: 19*32 }
 ]
 
-
-function loadJSON(callback) {
-
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'level.json', true); // Replace 'my_data' with the path to your file
-    xobj.onreadystatechange = function() {
-        if (xobj.readyState == 4 && xobj.status == "200") {
-            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-            callback(xobj.responseText);
-        }
-    };
-    xobj.send(null);
-}
-
 function init() {
- loadJSON(function(response) {
+ get("level.json", function(response) {
+	 var jsonRes = JSON.parse(response);
+	 get(jsonRes.tileset, function(res) {
+		 	var res = JSON.parse(res);
+			tile.src = res.sprites
+			console.log(tile);
+			tiles = res.tiles
+
+	 		var walls = importData(jsonRes.data);
+			console.log(res);
+			console.log(tiles)
+	 		console.log(walls)
+	 		console.log(man)
+			// console.log('game started')
+	 		// [man].map( image => {
+	 		// 	image.onload = () => {
+	 		// 		imagesLoaded += 1;
+	 		// 		if (imagesLoaded == 1)
+	 		// 			startGame(walls);
+	 		// 	}
+	 		// });
+
+	 		//startGame(walls)
+
+			startGame(walls)
+
+		})
   // Parse JSON string into object
-    var jsonRes = JSON.parse(response);
-		var data = jsonRes.data
-		var walls = importData(data);
-		console.log('game started')
-
-		console.log(walls)
-		console.log(man)
-		// [man].map( image => {
-		// 	image.onload = () => {
-		// 		imagesLoaded += 1;
-		// 		if (imagesLoaded == 1)
-		// 			startGame(walls);
-		// 	}
-		// });
-
-		startGame(walls)
-
 
 
 
@@ -55,7 +48,6 @@ function init() {
 }
 
 init();
-console.log(data);
 // var walls = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 // 						 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
 // 					   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -86,15 +78,15 @@ function startGame(data) {
 	state = {
 		state: "playing",
 		player: {
-			x: 295,
-			y: 175,
+			x: 0,
+			y: 0,
 			vx: 0,
 			vy: 0
 		}
 	}
 	// console.log(state.walls.wall1)
-	//gameLoop()
-	 window.setInterval(function() {gameLoop(data)}, 10);
+	//gameLoop(data)
+	window.setInterval(function() {gameLoop(data)}, 10);
 }
 
 function gameLoop(data) {
@@ -120,7 +112,9 @@ function updateState(walls) {
 
 function drawWall(tileType, topX, topY, xLength, yLength) {
     ctx.beginPath();
-    ctx.drawImage(tile, tiles[tileType].x, tiles[tileType].y, TILE_WIDTH, TILE_WIDTH, topX, topY, xLength, yLength);
+		if (tileType != 0) {
+			ctx.drawImage(tile, tiles[tileType].x * TILE_WIDTH, tiles[tileType].y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH, topX, topY, xLength, yLength);
+		}
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
