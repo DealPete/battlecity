@@ -50,8 +50,10 @@ function startGame(tile, data) {
 			x: 0,
 			y: 0,
 			vx: 0,
-			vy: 0
-		}
+			vy: 0,
+		},
+    tankSkin : tiles[1],
+    animate : 1
 	}
 	// console.log(state.walls.wall1)
 	//gameLoop(data)
@@ -71,12 +73,14 @@ function drawScreen(tile, walls) {
 }
 
 function animateTank(tile) {
-  if (tank.x == 0) {
-    tank.x += 32
+  if (state.animate == 1) {
+    state.tankSkin.x += 32;
+    state.animate = 2;
   } else {
-    tank.x -= 32
+    state.tankSkin.x -= 32;
+    state.animate = 1;
   }
-  return ctx.drawImage(tile, tank.x, tank.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
+  return ctx.drawImage(tile, state.tankSkin.x, state.tankSkin.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
 }
 
 function getCurrentPosition(x, y) {
@@ -161,14 +165,26 @@ window.onkeyup = (event) => {
 window.onkeydown = (event) => {
   event.preventDefault();
 	if (state.state == "playing") {
-		if (event.keyCode == 37)
+		if (event.keyCode == 37) {
 			state.player.vx = -2;
-		else if (event.keyCode == 38)
+      state.tankSkin.x = 64;
+      state.animate = 1;
+    }
+		else if (event.keyCode == 38){
 			state.player.vy = -2;
-		else if (event.keyCode == 39)
+      state.tankSkin.x = 0;
+      state.animate = 1;
+    }
+		else if (event.keyCode == 39){
 			state.player.vx = 2;
-		else if (event.keyCode == 40)
+      state.tankSkin.x = 192;
+      state.animate = 1;
+    }
+		else if (event.keyCode == 40){
 			state.player.vy = 2;
+      state.tankSkin.x = 128;
+      state.animate = 1;
+    }
 	}
 
 }
