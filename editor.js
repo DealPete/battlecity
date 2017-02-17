@@ -12,7 +12,6 @@ state = {
 }
 
 var sprites = new Image();
-
 var map = [];
 var buttons = [];
 var levelNameSpan = document.getElementById('levelName');
@@ -51,11 +50,17 @@ function createButtons() {
 function loadMap() {
 	get("loadlevel.php", function(res) {
 		level = JSON.parse(res);
+		console.log(level);
 		levelNameSpan.innerHTML = level.name;
 		if (level.data.length != MAP_HEIGHT*MAP_WIDTH)
 			throw new Error("Map has incorrect dimensions.");
 		for (i of level.data)
 			map.push(i);
+
+		saveButton.onclick = saveClick;
+		clearMap.onclick = clearClick;
+		canvas.onmousedown = canvasMouseDown;
+		canvas.onmousemove = canvasMouseMove;
 
 		get(level.tileset, res => {
 			console.log(res);
@@ -103,7 +108,7 @@ function drawMap() {
 	}
 }
 
-canvas.onmousedown = function(e) {
+function canvasMouseDown(e) {
 	state.cursorLocation = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
 			+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
 	state.mouseDown = true;
@@ -121,7 +126,7 @@ canvas.onmouseup = function() {
 	state.mouseDown = false;
 }
 
-canvas.onmousemove = function(e) {
+function canvasMouseMove(e) {
 	if (state.mouseDown) {
 		var loc = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
 				+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
@@ -137,14 +142,14 @@ canvas.oncontextmenu = function(e) {
 	e.preventDefault();
 }
 
-saveButton.onclick = function() {
+function saveClick() {
 	level.data = map.join("");
 	post("savelevel.php", JSON.stringify(level), function(res) {
 		console.log(res)
 	});
 }
 	
-clearMap.onclick = function() {
+function clearClick() {
 	map = map.map( tile => 0 );
 	drawMap();
 }
