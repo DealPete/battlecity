@@ -26,6 +26,8 @@ function init() {
 			tile.src = res.sprites
 			console.log(tile);
 			tiles = res.tiles
+      tank = tiles[1];
+      console.log(tank)
 
 	 		var walls = importData(jsonRes.data);
 			console.log(res);
@@ -34,13 +36,14 @@ function init() {
 	 		console.log(man)
 			console.log('game started')
 
-			startGame(walls)
+			startGame(tile, walls)
+
 
 		});
  });
 }
 
-function startGame(data) {
+function startGame(tile, data) {
 	state = {
 		state: "playing",
 		player: {
@@ -52,28 +55,44 @@ function startGame(data) {
 	}
 	// console.log(state.walls.wall1)
 	//gameLoop(data)
-	window.setInterval(function() {gameLoop(data)}, 10);
+	window.setInterval(function() {gameLoop(tile, data)}, 10);
 }
 
-function gameLoop(data) {
-	drawScreen(data);
+function gameLoop(tile, data) {
+	drawScreen(tile, data);
 	if (state.state == "playing")
 		updateState(data);
 }
 
-function drawScreen(walls) {
+function drawScreen(tile, walls) {
 	ctx.clearRect(0, 0, 960, 640);
-	ctx.drawImage(man, state.player.x, state.player.y, 30, 30);
-	drawWalls(walls)
+  animateTank(tile)
+  drawWalls(walls)
+}
+
+function animateTank(tile) {
+  if (tank.x == 0) {
+    tank.x += 32
+  } else {
+    tank.x -= 32
+  }
+  return ctx.drawImage(tile, tank.x, tank.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
+}
+
+function getCurrentPosition(x, y) {
+  console.log(x)
+  console.log(y)
 }
 
 function updateState(walls) {
 	let newX = state.player.x + state.player.vx;
 	let newY = state.player.y + state.player.vy;
 	if (!collisionDetection(walls, newX, newY)) {
+
 		state.player.x = newX;
 		state.player.y = newY;
 	}
+
 }
 
 function drawWall(tileType, topX, topY, xLength, yLength) {
@@ -109,7 +128,7 @@ function collisionDetection(walls, newX, newY) {
 	for (var column = 0; column < walls.length; column++) {
 		for (var row = 0; row < walls[column].length; row++) {
 			if (newX > row * TILE_WIDTH - 32 && newX < row * TILE_WIDTH + TILE_WIDTH && newY > column * TILE_WIDTH - 32 && newY < column * TILE_WIDTH + TILE_WIDTH && walls[column][row] != 0 ) {
-				return true
+        return true
 			}
 		}
 	}
@@ -140,6 +159,7 @@ window.onkeyup = (event) => {
 }
 
 window.onkeydown = (event) => {
+  event.preventDefault();
 	if (state.state == "playing") {
 		if (event.keyCode == 37)
 			state.player.vx = -2;
@@ -150,4 +170,5 @@ window.onkeydown = (event) => {
 		else if (event.keyCode == 40)
 			state.player.vy = 2;
 	}
+
 }
