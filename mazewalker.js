@@ -154,6 +154,7 @@ window.onkeyup = (event) => {
 		if (event.keyCode == 38 && state.player.vy < 0 ||
 			event.keyCode == 40 && state.player.vy > 0) {
 			state.player.vy = 0;
+
 		}
 		if (event.keyCode == 37 && state.player.vx < 0 ||
 			event.keyCode == 39 && state.player.vx > 0) {
