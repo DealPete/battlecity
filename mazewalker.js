@@ -24,17 +24,17 @@ function init() {
 	 get(jsonRes.tileset, function(res) {
 		 	var res = JSON.parse(res);
 			tile.src = res.sprites
-			console.log(tile);
+			// console.log(tile);
 			tiles = res.tiles
       tank = tiles[1];
-      console.log(tank)
+      // console.log(tank)
 
 	 		var walls = importData(jsonRes.data);
-			console.log(res);
-			console.log(tiles)
-	 		console.log(walls)
-	 		console.log(man)
-			console.log('game started')
+			// console.log(res);
+			// console.log(tiles)
+      // nsole.log(walls)
+      // nsole.log(man)
+			// console.log('game started')
 
 			startGame(tile, walls)
 
@@ -55,6 +55,8 @@ function startGame(tile, data) {
     tankSkin : tiles[1],
     animate : 1
 	}
+  console.log(state)
+  getStartPlace(data)
 	// console.log(state.walls.wall1)
 	//gameLoop(data)
 	window.setInterval(function() {gameLoop(tile, data)}, 10);
@@ -83,10 +85,10 @@ function animateTank(tile) {
   return ctx.drawImage(tile, state.tankSkin.x, state.tankSkin.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
 }
 
-function getCurrentPosition(x, y) {
-  console.log(x)
-  console.log(y)
-}
+// function getCurrentPosition(x, y) {
+//   console.log(x)
+//   console.log(y)
+// }
 
 function updateState(walls) {
 	let newX = state.player.x + state.player.vx;
@@ -96,17 +98,30 @@ function updateState(walls) {
 		state.player.x = newX;
 		state.player.y = newY;
 	}
-
 }
 
 function drawWall(tileType, topX, topY, xLength, yLength) {
     ctx.beginPath();
-		if (tileType != 0) {
+		if (tileType > 1) {
 			ctx.drawImage(tile, tiles[tileType].x * TILE_WIDTH, tiles[tileType].y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH, topX, topY, xLength, yLength);
 		}
+
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
+}
+
+function getStartPlace(walls) {
+  for (var column = 0; column < walls.length; column++) {
+		for (var row = 0; row < walls[column].length; row++) {
+			if (walls[column][row] == 1) {
+				state.player.x = row * TILE_WIDTH;
+        state.player.y = column * TILE_WIDTH;
+        console.log(state.player.y)
+        console.log(state.player.x)
+			}
+		}
+	}
 }
 
 function drawWalls(walls) {
@@ -131,7 +146,7 @@ function importData(data) {
 function collisionDetection(walls, newX, newY) {
 	for (var column = 0; column < walls.length; column++) {
 		for (var row = 0; row < walls[column].length; row++) {
-			if (newX > row * TILE_WIDTH - 32 && newX < row * TILE_WIDTH + TILE_WIDTH && newY > column * TILE_WIDTH - 32 && newY < column * TILE_WIDTH + TILE_WIDTH && walls[column][row] != 0 ) {
+			if (newX > row * TILE_WIDTH - 32 && newX < row * TILE_WIDTH + TILE_WIDTH && newY > column * TILE_WIDTH - 32 && newY < column * TILE_WIDTH + TILE_WIDTH && walls[column][row] > 1 ) {
         return true
 			}
 		}
