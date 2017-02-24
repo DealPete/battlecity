@@ -58,8 +58,9 @@ function startGame(tile, data) {
   console.log(state)
   getStartPlace(data)
 	// console.log(state.walls.wall1)
-	//gameLoop(data)
-	window.setInterval(function() {gameLoop(tile, data)}, 10);
+	// gameLoop(tile, data)
+  sideCheck(state.player.x, state.player.y, data)
+ window.setInterval(function() {gameLoop(tile, data);}, 10);
 }
 
 function gameLoop(tile, data) {
@@ -85,19 +86,25 @@ function animateTank(tile) {
   return ctx.drawImage(tile, state.tankSkin.x, state.tankSkin.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
 }
 
-// function getCurrentPosition(x, y) {
-//   console.log(x)
-//   console.log(y)
-// }
-
 function updateState(walls) {
 	let newX = state.player.x + state.player.vx;
-	let newY = state.player.y + state.player.vy;
+	let newY = state.player.y
 	if (!collisionDetection(walls, newX, newY)) {
 
 		state.player.x = newX;
+	} else {
+    sideCheck(state.player.x, state.player.y, walls)
+  }
+
+  newX = state.player.x
+	newY = state.player.y + state.player.vy;
+	if (!collisionDetection(walls, newX, newY)) {
 		state.player.y = newY;
-	}
+
+	} else {
+
+    sideCheck(state.player.x, state.player.y, walls)
+  }
 }
 
 function drawWall(tileType, topX, topY, xLength, yLength) {
@@ -156,6 +163,25 @@ function collisionDetection(walls, newX, newY) {
 	// if (newX < state.walls.wall1.topX + state.walls.wall1.xLength && newX > state.walls.wall1.topX - 30 && newY < state.walls.wall1.topY + state.walls.wall1.yLength && newY > state.walls.wall1.topY - 30) {
 	// 	return true;
 	// }
+}
+
+
+function sideCheck(x, y, walls) {
+  xPlace = Math.floor(x/32)
+  yPlace = Math.floor(y/32)
+  console.log(xPlace)
+  if (walls[0][xPlace] > 1) {
+    if (state.player.x >= xPlace*32 + 20 && walls[0][xPlace+1] != 4) {
+      console.log(x)
+      state.player.x = (xPlace+1) * 32
+    }
+    if (state.player.x <= xPlace*32 - 2 && walls[0][xPlace-1] != 4) {
+      console.log(x)
+      state.player.x = (xPlace) * 32
+    }
+  }
+
+
 }
 
 init();
