@@ -167,21 +167,31 @@ function collisionDetection(walls, newX, newY) {
 
 
 function sideCheck(x, y, walls) {
+
   xPlace = Math.floor(x/32)
   yPlace = Math.floor(y/32)
   console.log(xPlace)
-  if (walls[0][xPlace] > 1) {
-    if (state.player.x >= xPlace*32 + 20 && walls[0][xPlace+1] != 4) {
-      console.log(x)
-      state.player.x = (xPlace+1) * 32
-    }
-    if (state.player.x <= xPlace*32 - 2 && walls[0][xPlace-1] != 4) {
-      console.log(x)
-      state.player.x = (xPlace) * 32
+  // console.log(x)
+  // console.log(y)
+ console.log(yPlace)
+  if (walls[yPlace + 1][xPlace] == 4 || walls[yPlace - 1][xPlace] == 4 ) {
+    if (state.player.x >= (xPlace+1)*32 - 12 && ((walls[yPlace - 1][xPlace+1] != 4) && (walls[yPlace + 1][xPlace+1] != 4))) {
+        console.log('state1.1')
+        state.player.x = (xPlace+1) * 32
     }
   }
-
-
+  if (walls[yPlace + 1][xPlace] != 4 || walls[yPlace - 1][xPlace] != 4 ) {
+    if (state.player.x <= xPlace*32 + 12 && ((walls[yPlace - 1][xPlace] != 4) && (walls[yPlace + 1][xPlace] != 4))) {
+        console.log('state1.2')
+        state.player.x = (xPlace) * 32
+        if (walls[yPlace][xPlace-1] != 4 || walls[yPlace][xPlace+1] != 4) {
+            state.player.y = yPlace * 32
+        }
+        if ((walls[yPlace][xPlace-1] == 4 || walls[yPlace][xPlace+1] == 4)) {
+          state.player.y = (yPlace + 1) * 32
+        }
+    }
+  }
 }
 
 init();
