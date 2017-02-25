@@ -59,7 +59,6 @@ function startGame(tile, data) {
   getStartPlace(data)
 	// console.log(state.walls.wall1)
 	// gameLoop(tile, data)
-  sideCheck(state.player.x, state.player.y, data)
  window.setInterval(function() {gameLoop(tile, data);}, 10);
 }
 
@@ -76,12 +75,14 @@ function drawScreen(tile, walls) {
 }
 
 function animateTank(tile) {
-  if (state.animate == 1) {
-    state.tankSkin.x += 32;
-    state.animate = 2;
-  } else {
-    state.tankSkin.x -= 32;
-    state.animate = 1;
+  if (state.animate != 0) {
+    if (state.animate == 1) {
+      state.tankSkin.x += TILE_WIDTH;
+      state.animate = 2;
+    } else {
+      state.tankSkin.x -= TILE_WIDTH;
+      state.animate = 0;
+    }
   }
   return ctx.drawImage(tile, state.tankSkin.x, state.tankSkin.y, TILE_WIDTH, TILE_WIDTH, state.player.x, state.player.y, TILE_WIDTH, TILE_WIDTH)
 }
@@ -93,7 +94,7 @@ function updateState(walls) {
 
 		state.player.x = newX;
 	} else {
-    sideCheck(state.player.x, state.player.y, walls)
+    wallShove(state.player.x, state.player.y, walls, state.player.vx, state.player.vy)
   }
 
   newX = state.player.x
@@ -103,7 +104,7 @@ function updateState(walls) {
 
 	} else {
 
-    sideCheck(state.player.x, state.player.y, walls)
+    wallShove(state.player.x, state.player.y, walls, state.player.vx, state.player.vy)
   }
 }
 
@@ -153,45 +154,60 @@ function importData(data) {
 function collisionDetection(walls, newX, newY) {
 	for (var column = 0; column < walls.length; column++) {
 		for (var row = 0; row < walls[column].length; row++) {
-			if (newX > row * TILE_WIDTH - 32 && newX < row * TILE_WIDTH + TILE_WIDTH && newY > column * TILE_WIDTH - 32 && newY < column * TILE_WIDTH + TILE_WIDTH && walls[column][row] > 1 ) {
+			if (newX > (row-1) * TILE_WIDTH && newX < row * TILE_WIDTH + TILE_WIDTH && newY > (column - 1) * TILE_WIDTH && newY < column * TILE_WIDTH + TILE_WIDTH && walls[column][row] > 1 ) {
         return true
 			}
 		}
 	}
-
-	//wall detection
-	// if (newX < state.walls.wall1.topX + state.walls.wall1.xLength && newX > state.walls.wall1.topX - 30 && newY < state.walls.wall1.topY + state.walls.wall1.yLength && newY > state.walls.wall1.topY - 30) {
-	// 	return true;
-	// }
 }
 
 
-function sideCheck(x, y, walls) {
+function wallShove(x, y, walls, speedX, speedY) {
 
-  xPlace = Math.floor(x/32)
-  yPlace = Math.floor(y/32)
-  console.log(xPlace)
-  // console.log(x)
-  // console.log(y)
- console.log(yPlace)
-  if (walls[yPlace + 1][xPlace] == 4 || walls[yPlace - 1][xPlace] == 4 ) {
-    if (state.player.x >= (xPlace+1)*32 - 12 && ((walls[yPlace - 1][xPlace+1] != 4) && (walls[yPlace + 1][xPlace+1] != 4))) {
-        console.log('state1.1')
-        state.player.x = (xPlace+1) * 32
-    }
-  }
-  if (walls[yPlace + 1][xPlace] != 4 || walls[yPlace - 1][xPlace] != 4 ) {
-    if (state.player.x <= xPlace*32 + 12 && ((walls[yPlace - 1][xPlace] != 4) && (walls[yPlace + 1][xPlace] != 4))) {
-        console.log('state1.2')
-        state.player.x = (xPlace) * 32
-        if (walls[yPlace][xPlace-1] != 4 || walls[yPlace][xPlace+1] != 4) {
-            state.player.y = yPlace * 32
-        }
-        if ((walls[yPlace][xPlace-1] == 4 || walls[yPlace][xPlace+1] == 4)) {
-          state.player.y = (yPlace + 1) * 32
-        }
-    }
-  }
+  xPlace = Math.floor(x/TILE_WIDTH)
+  yPlace = Math.floor(y/TILE_WIDTH)
+
+ if (speedY > 0) {
+     if (state.player.x >= (xPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace+1] < 4) {
+         console.log('top right')
+         state.player.x = (xPlace+1) * TILE_WIDTH
+     }
+     if (state.player.x <= (xPlace)*TILE_WIDTH + 12 && walls[yPlace + 1][xPlace] < 4) {
+         console.log('top left')
+         state.player.x = (xPlace) * TILE_WIDTH
+     }
+ }
+ if (speedY < 0) {
+     if (state.player.x >= (xPlace+1)*TILE_WIDTH - 12 && walls[yPlace - 1][xPlace+1] < 4) {
+         console.log('bottom right')
+         state.player.x = (xPlace+1) * TILE_WIDTH
+     }
+     if (state.player.x <= (xPlace)*TILE_WIDTH + 12 && walls[yPlace - 1][xPlace] < 4) {
+         console.log('bottom left')
+         state.player.x = (xPlace) * TILE_WIDTH
+     }
+ }
+
+ if (speedX > 0) {
+     if (state.player.y >= (yPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace+1] < 4) {
+         console.log('state1.5')
+         state.player.y = (yPlace+1) * TILE_WIDTH
+     }
+     if (state.player.y <= (yPlace)*TILE_WIDTH + 12 && walls[yPlace][xPlace + 1] < 4) {
+         console.log('state1.6')
+         state.player.y = (yPlace) * TILE_WIDTH
+     }
+ }
+ if (speedX < 0) {
+     if (state.player.y >= (yPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace - 1] < 4) {
+         console.log('state1.7')
+         state.player.y = (yPlace+1) * TILE_WIDTH
+     }
+     if (state.player.y <= (yPlace)*TILE_WIDTH + 12 && walls[yPlace][xPlace - 1] < 4) {
+         console.log('state1.8')
+         state.player.y = (yPlace) * TILE_WIDTH
+     }
+ }
 }
 
 init();
@@ -212,6 +228,7 @@ window.onkeyup = (event) => {
 			state.player.vx = 0;
 		}
 	}
+  state.animate = 0;
 }
 
 window.onkeydown = (event) => {
