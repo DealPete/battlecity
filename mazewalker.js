@@ -169,42 +169,34 @@ function wallShove(x, y, walls, speedX, speedY) {
 
  if (speedY > 0) {
      if (state.player.x >= (xPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace+1] < 4) {
-         console.log('top right')
          state.player.x = (xPlace+1) * TILE_WIDTH
      }
      if (state.player.x <= (xPlace)*TILE_WIDTH + 12 && walls[yPlace + 1][xPlace] < 4) {
-         console.log('top left')
          state.player.x = (xPlace) * TILE_WIDTH
      }
  }
  if (speedY < 0) {
      if (state.player.x >= (xPlace+1)*TILE_WIDTH - 12 && walls[yPlace - 1][xPlace+1] < 4) {
-         console.log('bottom right')
          state.player.x = (xPlace+1) * TILE_WIDTH
      }
      if (state.player.x <= (xPlace)*TILE_WIDTH + 12 && walls[yPlace - 1][xPlace] < 4) {
-         console.log('bottom left')
          state.player.x = (xPlace) * TILE_WIDTH
      }
  }
 
  if (speedX > 0) {
      if (state.player.y >= (yPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace+1] < 4) {
-         console.log('state1.5')
          state.player.y = (yPlace+1) * TILE_WIDTH
      }
      if (state.player.y <= (yPlace)*TILE_WIDTH + 12 && walls[yPlace][xPlace + 1] < 4) {
-         console.log('state1.6')
          state.player.y = (yPlace) * TILE_WIDTH
      }
  }
  if (speedX < 0) {
      if (state.player.y >= (yPlace+1)*TILE_WIDTH - 12 && walls[yPlace + 1][xPlace - 1] < 4) {
-         console.log('state1.7')
          state.player.y = (yPlace+1) * TILE_WIDTH
      }
      if (state.player.y <= (yPlace)*TILE_WIDTH + 12 && walls[yPlace][xPlace - 1] < 4) {
-         console.log('state1.8')
          state.player.y = (yPlace) * TILE_WIDTH
      }
  }
