@@ -1,1 +1,1 @@
-Multiplayer mazewalking game.
+Remake of Battle City for NES.

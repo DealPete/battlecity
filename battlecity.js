@@ -8,7 +8,7 @@ var tile = new Image();
 
 var tiles = [];
 
-var canvas = document.getElementById('maze');
+var canvas = document.getElementById('city');
 var ctx = canvas.getContext('2d');
 
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
