@@ -1,0 +1,22 @@
+{
+  "name": "battlecity",
+  "version": "1.0.0",
+  "description": "Remake of NES Battle City",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dealpete/battlecity.git"
+  },
+  "author": "Peter Deal and Adam Lichter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dealpete/battlecity/issues"
+  },
+  "homepage": "https://github.com/dealpete/battlecity#readme",
+  "dependencies": {
+    "nodejs-websocket": "^1.7.1"
+  }
+}
