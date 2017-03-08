@@ -1,6 +1,3 @@
-MAP_HEIGHT = 20
-MAP_WIDTH = 30
-
 var canvas = document.getElementById('editor');
 var ctx = canvas.getContext('2d');
 
@@ -50,9 +47,8 @@ function createButtons() {
 function loadMap() {
 	get("loadlevel.php", function(res) {
 		level = JSON.parse(res);
-		console.log(level);
 		levelNameSpan.innerHTML = level.name;
-		if (level.data.length != MAP_HEIGHT*MAP_WIDTH)
+		if (level.data.length != level.width * level.height)
 			throw new Error("Map has incorrect dimensions.");
 		for (i of level.data)
 			map.push(i);
@@ -63,7 +59,6 @@ function loadMap() {
 		canvas.onmousemove = canvasMouseMove;
 
 		get(level.tileset, res => {
-			console.log(res);
 			tileset = JSON.parse(res);
 			sprites.src = tileset.sprites;
 			sprites.onload = createButtons;
@@ -72,19 +67,19 @@ function loadMap() {
 }
 
 function drawGrid() {
-	for (i = 1; i < MAP_WIDTH; i++) {
+	for (i = 1; i < level.width; i++) {
 		ctx.beginPath();
 		ctx.moveTo(i * tileset.tileWidth, 0);
-		ctx.lineTo(i * tileset.tileWidth, tileset.tileHeight*MAP_HEIGHT);
+		ctx.lineTo(i * tileset.tileWidth, tileset.tileHeight*level.height);
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "#FFFFFF";
 		ctx.stroke();
 	}
 
-	for (i = 1; i < MAP_HEIGHT; i++) {
+	for (i = 1; i < level.height; i++) {
 		ctx.beginPath();
 		ctx.moveTo(0, i * tileset.tileHeight);
-		ctx.lineTo(tileset.tileWidth*MAP_WIDTH, i * tileset.tileHeight);
+		ctx.lineTo(tileset.tileWidth*level.width, i * tileset.tileHeight);
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "#FFFFFF";
 		ctx.stroke();
@@ -92,32 +87,53 @@ function drawGrid() {
 }
 
 function drawMap() {
-	ctx.clearRect(0, 0, MAP_WIDTH*tileset.tileWidth, MAP_HEIGHT*tileset.tileHeight);
+	ctx.clearRect(0, 0, level.width*tileset.tileWidth, level.height*tileset.tileHeight);
 	drawGrid();
-	function drawTile(name, x, y) {
-		ctx.drawImage(sprites, tileset.tiles[name].x*tileset.tileWidth,
-			tileset.tiles[name].y*tileset.tileHeight, tileset.tileWidth,
+	function drawTile(tile, x, y) {
+		ctx.drawImage(sprites, tile.x*tileset.tileWidth,
+			tile.y*tileset.tileHeight, tileset.tileWidth,
 			tileset.tileHeight, x*tileset.tileWidth, y*tileset.tileHeight,
 			tileset.tileWidth, tileset.tileHeight);
 	}
 
-	for (i = 0; i < map.length; i++) {
-		if (map[i] != 0) {
-			drawTile(map[i], i % MAP_WIDTH, Math.floor(i / MAP_WIDTH))
+	for (i = 0; i < map.length; i++)
+		if (map[i] != 0)
+			drawTile(tileset.tiles[map[i]], i % level.width, Math.floor(i / level.width))
+
+	for (tile of tileset.tiles)
+		if (tile.type == "unique") {
+			let pos = level[tile.name];
+			if (pos != "absent")
+				drawTile(tile, pos % level.width, Math.floor(pos / level.width));
 		}
+}
+
+function placeTile(location) {
+	if (tileset.tiles[state.terrain].type == "unique") {
+		level[tileset.tiles[state.terrain].name] = location;
+		map[location] = 0;
 	}
+	else
+		map[location] = state.terrain;
+}
+
+function removeTile(location) {
+	for (tile of tileset.tiles)
+		if (tile.type == "unique" && level[tile.name] == location)
+			level[tile.name] = "absent";
+	map[location] = 0;
 }
 
 function canvasMouseDown(e) {
-	state.cursorLocation = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
-			+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
+	state.cursorLocation = Math.floor(e.offsetX/tileset.tileWidth) % level.width
+			+ Math.floor(e.offsetY/tileset.tileHeight) * level.width;
 	state.mouseDown = true;
 	state.button = e.button;
 	if (state.button == 0) {
-		map[state.cursorLocation] = state.terrain;
+		placeTile(state.cursorLocation);
 	} else if (state.button == 2) {
 		e.preventDefault();
-		map[state.cursorLocation] = 0;
+		removeTile(state.cursorLocation);
 	}
 	drawMap();
 }
@@ -128,10 +144,13 @@ canvas.onmouseup = function() {
 
 function canvasMouseMove(e) {
 	if (state.mouseDown) {
-		var loc = Math.floor(e.offsetX/tileset.tileWidth) % MAP_WIDTH
-				+ Math.floor(e.offsetY/tileset.tileHeight) * MAP_WIDTH;
+		var loc = Math.floor(e.offsetX/tileset.tileWidth) % level.width
+				+ Math.floor(e.offsetY/tileset.tileHeight) * level.width;
 		if (loc != state.cursorLocation) {
-			map[loc] = (state.button == 0) ? state.terrain : 0;
+			if (state.button == 0)
+				placeTile(loc);
+			else
+				removeTile(loc);
 			state.cursorLocation = loc;
 			drawMap();
 		}
@@ -145,12 +164,15 @@ canvas.oncontextmenu = function(e) {
 function saveClick() {
 	level.data = map.join("");
 	post("savelevel.php", JSON.stringify(level), function(res) {
-		console.log(res)
+		console.log(res);
 	});
 }
 	
 function clearClick() {
 	map = map.map( tile => 0 );
+	for (tile of tileset.tiles)
+		if (tile.type == "unique")
+			level[tile.name] = "absent";
 	drawMap();
 }
 

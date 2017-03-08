@@ -1,21 +1,28 @@
+const tankFrames = {
+	up :
+		{ x: 0 },
+	down :
+		{ x: 4 },
+	left :
+		{ x: 2 },
+	right :
+		{ x: 6 }
+};
+
 function drawScreen() {
 	ctx.clearRect(0, 0, 960, 640);
-  animateTank();
+  drawTank();
   drawWalls();
 }
 
-function animateTank() {
+function drawTank() {
 	for(i = 0; i < 2; i++) {
-		if (state.player[i].animate != 0) {
-			if (state.player[i].animate == 1) {
-				state.player[i].tankSkin.x += 1;
-				state.player[i].animate = 2;
-			} else {
-				state.player[i].tankSkin.x -= 1;
-				state.player[i].animate = 0;
-			}
-		}
-		ctx.drawImage(sprites, state.player[i].tankSkin.x * TILE_WIDTH, state.player[i].tankSkin.y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH, state.player[i].x, state.player[i].y, TILE_WIDTH, TILE_WIDTH);
+		const player = state.gameState.player[i];
+
+		let frameX = (tankFrames[player.bearing].x + player.animate) * TILE_WIDTH,
+		    frameY = (i * TILE_WIDTH * 8);
+				
+		ctx.drawImage(sprites, frameX, frameY, TILE_WIDTH, TILE_WIDTH, player.x, player.y, TILE_WIDTH, TILE_WIDTH);
 	}
 }
 
@@ -31,10 +38,10 @@ function drawWall(tileType, topX, topY, xLength, yLength) {
 }
 
 function drawWalls() {
-	for (var column = 0; column < level.length; column++) {
-		for (var row = 0; row < level[column].length; row++) {
-			if (level[column][row]) {
-				drawWall(level[column][row], row * TILE_WIDTH, column * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
+	for (var column = 0; column < map.length; column++) {
+		for (var row = 0; row < map[column].length; row++) {
+			if (map[column][row]) {
+				drawWall(map[column][row], row * TILE_WIDTH, column * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
 			}
 		}
 	}

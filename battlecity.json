@@ -3,8 +3,18 @@
 	"tileHeight":32,
 	"tiles": [
 		{"name":"none","x":0,"y":0},
-		{"name":"tank1","x":0,"y":0},
-		{"name":"tank2","x":0,"y":8},
+		{
+			"name": "tank1",
+			"x":0,
+			"y":0,
+			"type":"unique"
+		},
+		{
+			"name": "tank2",
+			"x":0,
+			"y":8,
+			"type":"unique"
+		},
 		{"name":"flag","x":19,"y":2},
 		{"name":"brick","x":16,"y":0},
 		{"name":"wall","x":16,"y":1},
