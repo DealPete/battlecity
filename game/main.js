@@ -13,7 +13,7 @@ gain.connect(audioCtx.destination);
 
 let socketUrl = location.origin.replace(/^http/, "ws");
 
-const socket = new WebSocket(socketUrl);
+const socket = new WebSocket(socketUrl + ":5000");
 
 socket.onmessage = function(message) {
 	var data = JSON.parse(message.data);
