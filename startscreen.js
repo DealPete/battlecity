@@ -1,8 +1,6 @@
 waiting = [];
 
-let socketUrl = "ws:127.0.0.1:9000";
-if (process.env.WEBSOCK_URL)
-	socketUrl = process.env.WEBSOCK_URL + ":" + process.env.PORT;
+let socketUrl = location.origin.replace(/^http/, "ws");
 
 const socket = new WebSocket(socketUrl);
 

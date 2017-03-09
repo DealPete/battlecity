@@ -56,7 +56,7 @@ const server = ws.createServer( conn => {
 		if (target)
 			target.sendText(JSON.stringify(message));
 	});
-}).listen(process.env.PORT || 9000);
+}).listen(process.env.PORT || 5000);
 
 setInterval(update.update, TURN_LENGTH_MS, gameState);
 setInterval(contactClients, TIME_STEP_MS);
