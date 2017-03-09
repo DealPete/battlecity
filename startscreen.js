@@ -1,6 +1,10 @@
 waiting = [];
 
-const socket = new WebSocket("ws:127.0.0.1:9000");
+let socketUrl = "ws:127.0.0.1:9000";
+if (process.env.WEBSOCK_URL)
+	socketUrl = process.env.WEBSOCK_URL + ":" + process.env.PORT;
+
+const socket = new WebSocket(socketUrl);
 
 socket.onmessage = function(message) {
 	console.log(message.data);

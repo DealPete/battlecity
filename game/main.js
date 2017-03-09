@@ -11,7 +11,11 @@ var gain = audioCtx.createGain();
 gain.gain.value = 0.1;
 gain.connect(audioCtx.destination);
 
-const socket = new WebSocket("ws:127.0.0.1:9000");
+let socketUrl = "ws:127.0.0.1:9000";
+if (process.env.WEBSOCK_URL)
+	socketUrl = process.env.WEBSOCK_URL + ":" + process.env.PORT;
+	
+const socket = new WebSocket(socketUrl);
 
 socket.onmessage = function(message) {
 	var data = JSON.parse(message.data);
