@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/dealpete/battlecity#readme",
   "dependencies": {
-    "nodejs-websocket": "^1.7.1"
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "ws": "^2.2.0"
   }
 }

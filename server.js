@@ -1,11 +1,37 @@
-Object.assign(global, require('./game/defines.js'));
-const init = require('./game/init.js');
-      update = require('./game/update.js');
+const WebSocketServer = require('ws').Server;
+const http = require('http');
+const express = require('express');
+const app = express();
+const fs = require('fs');
+const bodyParser = require('body-parser');
 
-const fs = require('fs'),
-      ws = require('nodejs-websocket');
+app.use(express.static(__dirname + "/public"));
+app.use(bodyParser.json());
 
-const level = JSON.parse(fs.readFileSync("level.json"));
+let level = JSON.parse(fs.readFileSync("level.json"));
+let tileset = JSON.parse(fs.readFileSync(level.tileset));
+
+app.get("/level", (req, res) => {
+	res.send(JSON.stringify(level));
+});
+
+app.get("/tileset", (req, res) => {
+	res.send(JSON.stringify(tileset));
+});
+
+app.post("/level", (req, res) => {
+	level = req.body;
+	fs.writeFileSync("level.json", JSON.stringify(level));
+});
+
+const port = process.env.PORT || 5000;
+const server = http.createServer(app);
+server.listen(port);
+console.log("Listening on port", port);
+
+Object.assign(global, require('./public/game/defines.js'));
+const init = require('./public/game/init.js'),
+      update = require('./public/game/update.js');
 
 if (level.tank1 == "absent" || level.tank2 == "absent")
 	throw new Error("The level should have both tank starting spots.");
@@ -20,7 +46,9 @@ const gameState = {
 const connection = [null, null];
 const commands = [];
 
-const server = ws.createServer( conn => {
+const wss = new WebSocketServer({server: server});
+
+wss.on("connection", conn => {
 	const message = { type: "connect", state: gameState };
 	if (connection[0] == null) {
 		message.status = "player1";
@@ -33,9 +61,9 @@ const server = ws.createServer( conn => {
 	else
 		message.status = "full";
 
-	conn.sendText(JSON.stringify(message));
+	conn.send(JSON.stringify(message));
 
-	conn.on("text", str => {
+	conn.on("message", str => {
 		const message = JSON.parse(str);
 		update.applyCommand(gameState, message);
 	});
@@ -54,9 +82,9 @@ const server = ws.createServer( conn => {
 		}
 
 		if (target)
-			target.sendText(JSON.stringify(message));
+			target.send(JSON.stringify(message));
 	});
-}).listen(5000);
+});
 
 setInterval(update.update, TURN_LENGTH_MS, gameState);
 setInterval(contactClients, TIME_STEP_MS);
@@ -66,6 +94,6 @@ function contactClients() {
 	message.state = gameState;
 	for (conn of connection) {
 		if (conn)
-			conn.sendText(JSON.stringify(message));
+			conn.send(JSON.stringify(message));
 	}
 }

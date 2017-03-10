@@ -45,7 +45,7 @@ function createButtons() {
 }
 
 function loadMap() {
-	get("loadlevel.php", function(res) {
+	get("level", function(res) {
 		level = JSON.parse(res);
 		levelNameSpan.innerHTML = level.name;
 		if (level.data.length != level.width * level.height)
@@ -57,12 +57,12 @@ function loadMap() {
 		clearMap.onclick = clearClick;
 		canvas.onmousedown = canvasMouseDown;
 		canvas.onmousemove = canvasMouseMove;
+	});
 
-		get(level.tileset, res => {
-			tileset = JSON.parse(res);
-			sprites.src = tileset.sprites;
-			sprites.onload = createButtons;
-		});
+	get("tileset", res => {
+		tileset = JSON.parse(res);
+		sprites.src = tileset.sprites;
+		sprites.onload = createButtons;
 	});
 }
 
@@ -163,7 +163,7 @@ canvas.oncontextmenu = function(e) {
 
 function saveClick() {
 	level.data = map.join("");
-	post("savelevel.php", JSON.stringify(level), function(res) {
+	post("level", JSON.stringify(level), function(res) {
 		console.log(res);
 	});
 }

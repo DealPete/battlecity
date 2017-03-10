@@ -13,7 +13,7 @@ gain.connect(audioCtx.destination);
 
 let socketUrl = location.origin.replace(/^http/, "ws");
 
-const socket = new WebSocket(socketUrl + ":5000");
+const socket = new WebSocket(socketUrl);
 
 socket.onmessage = function(message) {
 	var data = JSON.parse(message.data);
@@ -48,10 +48,10 @@ const state = {
 };
 
 function init() {
-	get("level.json", function(response) {
+	get("level", function(response) {
 		var jsonRes = JSON.parse(response);
 		map = parseMapData(jsonRes);
-		get(jsonRes.tileset, function(res) {
+		get("tileset", function(res) {
 			var res = JSON.parse(res);
 			sprites.src = res.sprites;
 			tiles = res.tiles;
