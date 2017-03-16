@@ -23,7 +23,8 @@ function createButtons() {
 			node.style.width = tileset.tileWidth;
 			node.style.height = tileset.tileHeight;
 			node.style.background = "url(" + tileset.sprites +") -"
-				+ tile.x * tileset.tileWidth + " -" + tile.y * tileset.tileHeight;
+			  + tile.x * tileset.tileWidth + "px -" + tile.y * tileset.tileHeight + "px";
+
 			node.onclick = function() {
 				for (var i = 0; i < buttons.length; i++) {
 					if (buttons[i] == this) {
